@@ -32,17 +32,20 @@ class ImagePublisher:
 
     def get_rgb(self, cam):
         ret, self.cam_image = cam.read() #fetch image
-        try:
-            self.cam_pub.publish(self.bridge.cv2_to_imgmsg(self.cam_image, "bgr8")) # publish image
-        except CvBridgeError as e:
-            print(e)
+        if ret:
+            try:
+                img = cv2.cvtColor(self.cam_image, cv2.COLOR_BGR2GRAY)
+                self.cam_pub.publish(self.bridge.cv2_to_imgmsg(img, "mono8")) # publish image
+            except CvBridgeError as e:
+                print(e)
+
 
 
 def main():
 
     cam = cv2.VideoCapture() #create cam object
-    cam.open(cam_path) #start cam based on cam_path (/dev/video*)
-
+    cam.open(cam_path) #start cam based on cam_path (/dev/video*) 
+    #cam.open('/dev/video6')
     rospy.init_node("cam_pub") #initialize ros node
     rate = rospy.Rate(30) #set publishing rate
 

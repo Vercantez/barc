@@ -36,7 +36,7 @@
 	<node pkg="barc" type="controller_circular.py" name="controller" output="screen">
          <!-- PROPERTIES -->
         <param name="FxR_target" type="double" value="6.5" />
-        <param name="d_f_target" type="double" value="90" />
+        <param name="d_f_target" type="double" value="94" />
         <param name="t_0" type="int" value="2" />
 		<param name="t_f" type="int" value="15" />
 

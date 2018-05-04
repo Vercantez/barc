@@ -35,6 +35,8 @@ class ImagePublisher:
 
     def pub_imgs(self, img_recon, img_bw):
         try:
+            #self.pub_recon.publish(self.bridge.cv2_to_imgmsg(img_recon, "mono8"))
+            #self.pub_bw.publish(self.bridge.cv2_to_imgmsg(img_bw, "mono8"))
             self.pub_recon.publish(self.bridge.cv2_to_imgmsg(img_recon, "mono8"))
             self.pub_bw.publish(self.bridge.cv2_to_imgmsg(img_bw, "mono8"))
         except CvBridgeError as e:
@@ -46,14 +48,16 @@ def image_callback(msg):
     bridge = CvBridge()
     try:
         # Convert your ROS Image message to OpenCV2
-        cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
+        cv2_img = bridge.imgmsg_to_cv2(msg, "mono8")
     except CvBridgeError, e:
         print(e)
     else:
         # Save your OpenCV2 image as a jpeg 
         cv2.imwrite('camera_image.jpeg', cv2_img)
 
-	img = cv2.cvtColor(cv2_img, cv2.COLOR_BGR2GRAY)
+    #jp = ImagePublisher()
+    #jp.pub_imgs(cv2_img, cv2_img)
+    img = cv2_img #cv2.cvtColor(cv2_img, cv2.COLOR_BGR2GRAY)
 
     # find outer four corners of checkboard
     global board_corners
@@ -136,12 +140,10 @@ def image_callback(msg):
         evals, evecs = np.linalg.eig(cov) # eigenvalues and eigenvectors of the covarience matrix
     except:
         return
-    #print('found eign')
     sort_indices = np.argsort(evals)[::-1] #sort eigenvalues in decreasing order
     x_v1, y_v1 = evecs[:, sort_indices[0]]  # Eigenvector with largest eigenvalue
     ang = math.atan2(y_v1, x_v1)
     angd = ang/math.pi * 180
-    #print('found roation of line')
     # display the data and print results
     scale = 50
     Wp, Lp = bw_erode.shape
@@ -189,10 +191,8 @@ def image_callback(msg):
     #print('degree in degrees: ', angd)
     dir_img = img
     cv2.arrowedLine(line_img, pt1, pt2, (155,155,155), 2)
-    #print('got all the data in ', time.clock() - t0)
     #cv2.imshow('dir_img', dir_img)
-    publisher.publish(LineData(angd, Cxm, Cym))
-    #print('published info')
+    publisher.publish(LineData(ang, Cxm, Cym))
     ip = ImagePublisher()
     #close all windows when keyboard key is pressed on image window
     #cv2.waitKey(0)
@@ -209,7 +209,7 @@ def main():
 
     global publisher
 
-
+    rate = rospy.Rate(30)
     publisher = rospy.Publisher("/line/ang_disp", LineData, queue_size=1)
 
     # Define your image topic
@@ -219,6 +219,7 @@ def main():
     
     # Spin until ctrl + c
     rospy.spin()
+    rate.sleep()
 
 if __name__ == '__main__':
     main()

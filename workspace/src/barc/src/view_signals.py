@@ -149,7 +149,7 @@ def main():
 
     global publisher
 
-    publisher = rospy.Publisher("/line/ang_disp", LineData, queue_size=10)
+    publisher = rospy.Publisher("/line/ang_disp", LineData, queue_size=1)
 
     # Define your image topic
     image_topic = "/cam/raw"

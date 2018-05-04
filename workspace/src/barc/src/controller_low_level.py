@@ -43,7 +43,6 @@ def pwm_converter_callback(msg):
 
     # compute motor command
     FxR         =  float(msg.motor) 
-    print('FxR',FxR)
     if FxR == 0:
         motor_pwm = 90.0
     elif FxR > 0:
